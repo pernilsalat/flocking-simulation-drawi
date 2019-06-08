@@ -1,14 +1,9 @@
-let img, flock;
+let img, flock, isLoop = false, info;
 
 function setup() {
   const canvas = createCanvas(710, 400);
   canvas.drop(gotFile);
   background(100);
-
-  flock = Flock();
-  for (let i = 0; i < 100; i++) {
-    flock.addBoid(Boid(random(width), random(height)));
-  }
 }
 
 function draw() {
@@ -18,33 +13,47 @@ function draw() {
     textSize(24);
     textAlign(CENTER);
     text('Drag an image file onto the canvas.', width / 2, height / 2);
+    text('press "p" to (un)pause and "s" to save', width / 2, height * 2 / 3);
     noLoop();
   } else {
-    background(50);
     flock.run();
   }
 }
 
-function gotFile(file) {
-  if (file.type === 'image') {
-    img = createImg(file.data, function () {
-      const imageRatio = img.height / img.width;
-      let imageWidth = img.width, imageHeight = img.height;
+function startFlockingSimulation() {
+  const [x, y] = [random(width), random(height)];
+  const windowPixels = windowHeight * windowWidth;
+  const imgPixels = width * height;
 
-      if (imageHeight > windowHeight) {
-        imageHeight = windowHeight;
-        imageWidth = imageHeight / imageRatio;
-      }
-      if (imageWidth > windowWidth) {
-        imageWidth = windowWidth;
-        imageHeight = imageWidth * imageRatio;
-      }
+  let boidNumber = 200;
+  if (windowPixels / 3 > imgPixels) {
+    boidNumber = 100;
+  } else if (windowPixels * 2 / 3 > imgPixels) {
+    boidNumber = 150;
+  }
 
-      resizeCanvas(imageWidth, imageHeight);
-      // image(img, 0, 0, imageWidth, imageHeight);
-      loop();
-    }).hide();
-  } else {
-    console.log('Not an image file!');
+  background(50);
+  flock = Flock();
+  for (let i = 0; i < boidNumber; i++) {
+    flock.addBoid(Boid(x, y));
+  }
+}
+
+function keyPressed() {
+  switch (key) {
+    case 'p':
+      if (isLoop) {
+        isLoop = false;
+        noLoop();
+      } else {
+        isLoop = true;
+        loop();
+      }
+      break;
+    case 's':
+      saveCanvas();
+      break;
+    default:
+      break;
   }
 }

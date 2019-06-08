@@ -1,9 +1,10 @@
 function Boid(x, y) {
   const position = createVector(x, y);
-  const velocity = p5.Vector.random2D();
+  let previousPos = position.copy();
+  const velocity = createVector(random(-1, 1), random(-1, 1));
   const acceleration = createVector();
   const r = 3;
-  const maxSpeed = 5;
+  const maxSpeed = 3;
   const maxForce = 0.05; // Maximum steering force
 
   function applyForce(force) {
@@ -12,31 +13,35 @@ function Boid(x, y) {
 
   function update() {
     velocity.add(acceleration).limit(maxSpeed);
+    previousPos = position.copy();
     position.add(velocity);
     acceleration.set(0, 0);
   }
 
   function borders() {
-    if (position.x < -r) position.x = width + r;
-    if (position.y < -r) position.y = height + r;
-    if (position.x > width + r) position.x = -r;
-    if (position.y > height + r) position.y = -r;
+    if (position.x < -r) {
+      position.x = width + r;
+      previousPos = position.copy();
+    }
+    if (position.y < -r) {
+      position.y = height + r;
+      previousPos = position.copy();
+    }
+    if (position.x > width + r) {
+      position.x = -r;
+      previousPos = position.copy();
+    }
+    if (position.y > height + r) {
+      position.y = -r;
+      previousPos = position.copy();
+    }
   }
 
   function render() {
-    // Draw a triangle rotated in the direction of velocity
-    let theta = velocity.heading() + radians(90);
-    fill(127);
-    stroke(200);
-    push();
-    translate(position.x, position.y);
-    rotate(theta);
-    beginShape();
-    vertex(0, -r * 2);
-    vertex(-r, r * 2);
-    vertex(r, r * 2);
-    endShape(CLOSE);
-    pop();
+    const [r, g, b] = img.get(position.x, position.y);
+    strokeWeight(1);
+    stroke(r, g, b, random(150, 255));
+    line(position.x, position.y, previousPos.x, previousPos.y);
   }
 
   function flock(boids) {
@@ -46,8 +51,8 @@ function Boid(x, y) {
 
     // Arbitrarily weight these forces
     sep.mult(2);
-    ali.mult(1.0);
-    coh.mult(1.0);
+    ali.mult(1);
+    coh.mult(1);
 
     applyForce(sep);
     applyForce(ali);
