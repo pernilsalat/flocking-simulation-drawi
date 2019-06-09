@@ -3,9 +3,10 @@ function Boid(x, y) {
   let previousPos = position.copy();
   const velocity = createVector(random(-1, 1), random(-1, 1));
   const acceleration = createVector();
-  const r = 3;
+  const r = 0;
   const maxSpeed = 3;
   const maxForce = 0.05; // Maximum steering force
+  let col = img.get(x, y);
 
   function applyForce(force) {
     acceleration.add(force); // we could add mass here
@@ -38,9 +39,12 @@ function Boid(x, y) {
   }
 
   function render() {
-    const [r, g, b] = img.get(position.x, position.y);
-    strokeWeight(1);
-    stroke(r, g, b, random(150, 255));
+    const newCol = img.get(position.x, position.y);
+    const avrgCol = newCol.map((nCol, i) => floor((2* col[i] + nCol) / 3));
+    col = avrgCol;
+
+    stroke(...avrgCol);
+    strokeWeight(weigthSlider.value());
     line(position.x, position.y, previousPos.x, previousPos.y);
   }
 

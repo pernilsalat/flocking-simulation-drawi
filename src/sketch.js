@@ -1,9 +1,11 @@
-let img, flock, isLoop = false, info;
+let img, flock, isLoop = false, weigthSlider;
 
 function setup() {
   const canvas = createCanvas(710, 400);
   canvas.drop(gotFile);
   background(100);
+  createP('weight of the lines');
+  weigthSlider = createSlider(1, 10, 1);
 }
 
 function draw() {
